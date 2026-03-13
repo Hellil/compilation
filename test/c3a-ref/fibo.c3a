@@ -1,0 +1,25 @@
+	@0 = call main
+	stop @0
+fibo	fbegin	#entree fonction
+	@1 = 1
+	if n < 2 goto 2
+	@1 = 0
+2	if @1 == 0 goto 0
+	ret 1
+	fend
+	goto 1
+0	@3 = n - 1
+	param @3
+	@2 = call fibo
+	@5 = n - 2
+	param @5
+	@4 = call fibo
+	@6 = @2 + @4
+	ret @6
+	fend
+1	fend
+main	fbegin	#entree fonction
+	param 3
+	@7 = call fibo
+	write @7	
+	fend

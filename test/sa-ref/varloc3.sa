@@ -1,0 +1,1 @@
+(SaProg null (SaLDecFonc (SaDecFonc main nul null (SaLDecVar (SaDecVarSimple var1 entier) (SaLDecVar (SaDecVarSimple var2 entier) null)) (SaInstBloc (SaLInst (SaInstAffect (SaVarSimple var1) 10) (SaLInst (SaInstAffect (SaVarSimple var2) 30) (SaLInst (SaInstEcriture (SaExpVar (SaVarSimple var1))) (SaLInst (SaInstEcriture (SaExpVar (SaVarSimple var2))) null)))))) null))

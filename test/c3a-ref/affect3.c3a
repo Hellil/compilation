@@ -1,0 +1,10 @@
+	@0 = call main
+	stop @0
+f	fbegin	#entree fonction
+	a = 1
+	write a	
+	fend
+main	fbegin	#entree fonction
+	param 3
+	@1 = call f
+	fend

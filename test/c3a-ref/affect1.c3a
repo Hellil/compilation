@@ -1,0 +1,6 @@
+	@0 = call main
+	stop @0
+main	fbegin	#entree fonction
+	a = 1
+	write a	
+	fend

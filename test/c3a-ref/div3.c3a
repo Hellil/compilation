@@ -1,0 +1,7 @@
+	@0 = call main
+	stop @0
+main	fbegin	#entree fonction
+	@1 = 4 / 2
+	@2 = @1 / 2
+	write @2	
+	fend

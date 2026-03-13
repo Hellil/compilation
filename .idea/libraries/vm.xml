@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="vm">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/vm/SaVM.jar!/" />
+      <root url="jar://$PROJECT_DIR$/vm/C3aVM.jar!/" />
+      <root url="jar://$PROJECT_DIR$/vm/NasmVM.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

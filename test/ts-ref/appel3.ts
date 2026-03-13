@@ -1,0 +1,7 @@
+TABLE GLOBALE
+f	FCT	nul	0
+g	FCT	nul	0
+main	FCT	nul	0
+TABLE LOCALE : f
+TABLE LOCALE : g
+TABLE LOCALE : main

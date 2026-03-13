@@ -1,0 +1,17 @@
+	@0 = call main
+	stop @0
+main	fbegin	#entree fonction
+	base = 2
+	offset = 0
+	@1 = base + offset
+	tab[@1] = 34
+	offset = 1
+	@2 = base + offset
+	tab[@2] = 74
+	offset = 2
+	@3 = base + offset
+	tab[@3] = 16
+	write tab[2]	
+	write tab[3]	
+	write tab[4]	
+	fend

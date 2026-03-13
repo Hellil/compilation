@@ -1,0 +1,1 @@
+(SaProg null (SaLDecFonc (SaDecFonc f entier (SaLDecVar (SaDecVarSimple a entier) null) null (SaInstBloc (SaLInst (SaInstRetour (SaExpVar (SaVarSimple a))) null))) (SaLDecFonc (SaDecFonc main nul null null (SaInstBloc (SaLInst (SaInstEcriture (SaExpAppel (SaAppel f (SaLExp 3712 null)))) null))) null)))

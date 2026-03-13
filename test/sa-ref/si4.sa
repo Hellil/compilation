@@ -1,0 +1,1 @@
+(SaProg null (SaLDecFonc (SaDecFonc main nul null null (SaInstBloc (SaLInst (SaInstSi faux (SaInstBloc (SaLInst (SaInstEcriture vrai) null)) (SaInstBloc (SaLInst (SaInstEcriture faux) null))) (SaLInst (SaInstEcriture vrai) null)))) null))

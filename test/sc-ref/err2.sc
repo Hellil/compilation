@@ -1,0 +1,26 @@
+<Start>
+ <ALdecfoncProgramme>
+  <ALdecfoncrecListedecfonc>
+   <AInstrDecfonc>
+    <ASansparamListeparam>
+    </ASansparamListeparam>
+    <AInstrbloc>
+     <ALinstrecListeinst>
+      <AInstrappelInstr>
+       <AInstrappel>
+        <AAppelfct>
+         <AFinalListeexp>
+         </AFinalListeexp>
+        </AAppelfct>
+       </AInstrappel>
+      </AInstrappelInstr>
+      <ALinstfinalListeinst>
+      </ALinstfinalListeinst>
+     </ALinstrecListeinst>
+    </AInstrbloc>
+   </AInstrDecfonc>
+   <ALdecfoncfinalListedecfonc>
+   </ALdecfoncfinalListedecfonc>
+  </ALdecfoncrecListedecfonc>
+ </ALdecfoncProgramme>
+</Start>

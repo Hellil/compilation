@@ -1,0 +1,14 @@
+	@0 = call main
+	stop @0
+main	fbegin	#entree fonction
+	a = 10
+0	@1 = 1
+	if 0 < a goto 2
+	@1 = 0
+2	if @1 == 0 goto 1
+	write a	
+	@2 = a - 1
+	a = @2
+	goto 0
+1	write 0	
+	fend

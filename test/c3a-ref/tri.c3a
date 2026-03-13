@@ -1,0 +1,71 @@
+	@0 = call main
+	stop @0
+initialiser	fbegin	#entree fonction
+	tab[0] = 8
+	tab[1] = 6
+	tab[2] = 9
+	tab[3] = 9
+	tab[4] = 4
+	tab[5] = 2
+	tab[6] = 3
+	tab[7] = 1
+	tab[8] = 4
+	tab[9] = 5
+	fend
+afficher	fbegin	#entree fonction
+	i = 0
+0	@1 = 1
+	if i < n goto 2
+	@1 = 0
+2	if @1 == 0 goto 1
+	write tab[i]	
+	@2 = i + 1
+	i = @2
+	goto 0
+1	write 0	
+	fend
+echanger	fbegin	#entree fonction
+	temp = tab[j]
+	tab[j] = tab[i]
+	tab[i] = temp
+	fend
+trier	fbegin	#entree fonction
+	m = n
+	echange = 1
+3	@3 = 1
+	if echange == 1 goto 5
+	@3 = 0
+5	if @3 == 0 goto 4
+	echange = 0
+	j = 0
+6	@5 = m - 1
+	@4 = 1
+	if j < @5 goto 8
+	@4 = 0
+8	if @4 == 0 goto 7
+	@7 = j + 1
+	@6 = 1
+	if tab[@7] < tab[j] goto 11
+	@6 = 0
+11	if @6 == 0 goto 10
+	param j
+	@9 = j + 1
+	param @9
+	@8 = call echanger
+	echange = 1
+10	@10 = j + 1
+	j = @10
+	goto 6
+7	@11 = m - 1
+	m = @11
+	goto 3
+4	fend
+main	fbegin	#entree fonction
+	@12 = call initialiser
+	param 10
+	@13 = call afficher
+	param 10
+	@14 = call trier
+	param 10
+	@15 = call afficher
+	fend
