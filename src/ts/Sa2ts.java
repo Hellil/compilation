@@ -136,7 +136,7 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
         defaultIn(node);
         Ts tableLocale = new Ts();
         TsItemFct item = tableGlobale.addFct(node.getNom(), node.getTypeRetour(), node.getParametres().length(), tableLocale, node);
-        //setTsItem ?
+        node.tsItem = item;
         tableLocaleCourante = tableLocale;
         context = Context.PARAM;
         if(node.getParametres() != null) node.getParametres().accept(this);
@@ -165,7 +165,7 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
         if(var == null){
             throw new Exception("Variable non déclarée : " + node.getNom());
         }
-        //setTsItem ?
+        node.tsItem = (TsItemVarSimple) var;
         defaultOut(node);
         return null;
     }
@@ -186,9 +186,8 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
         if(tab == null){
             throw new Exception("Tableau non déclaré : " + node.getNom());
         }
-        //setTsItem ici ? +
+        node.tsItem = tab;
         node.getIndice().accept(this);
-        //setTsItem ou ici ? -
         defaultOut(node);
         return null;
     }
@@ -202,7 +201,7 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
             throw new Exception("Fonction non déclarée : " + node.getNom());
         }
 
-        //setTsItem mais pas de setTsItem dans SaAppel
+        node.tsItem = fct;
 
         int argLen = 0;
         if(node.getArguments() != null) node.getArguments().accept(this);
@@ -210,7 +209,7 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
         if(argLen != fct.getNbArgs()){
             throw new ErrorException(Error.TS, "nombre d'arguments incorrect pour la fonction " + node.getNom());
         }
-        //vérifier si nombre args correct ?
+        
         defaultOut(node);
         return null;
     }
