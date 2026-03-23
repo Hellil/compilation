@@ -23,7 +23,7 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
     
     public Ts getTableGlobale(){return this.tableGlobale;}
 
-    public Sa2ts(SaNode root) // param dans CM mais pas dans TP
+    public Sa2ts() // SaNode root dans param en CM mais pas dans TP
     {
         tableGlobale = new Ts();
         tableLocaleCourante = null;
@@ -31,7 +31,7 @@ public class Sa2ts extends SaDepthFirstVisitor <Void> {
 
         // suite dans le CM mais pas dans TP
         try{
-            root.accept(this);
+            //root.accept(this); impossible si root pas dans param
             if(tableGlobale.getFct("main") == null)
                 throw new ErrorException(Error.TS, "la fonction main n'existe pas");
         }
