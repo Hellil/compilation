@@ -109,13 +109,19 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
     public NasmOperand visit(C3aInstDiv inst){
         NasmOperand label = (inst.label != null) ? inst.label.accept(this) : null;
 
+        NasmRegister eax = new NasmRegister(-1);
+        eax.colorRegister(Nasm.REG_EAX);
+
         nasm.ajouteInst(new NasmMov(label,
-            inst.result.accept(this),
+            eax,
             inst.op1.accept(this), ""));
 
         nasm.ajouteInst(new NasmDiv(null,
-            inst.result.accept(this),
             inst.op2.accept(this), ""));
+
+        nasm.ajouteInst(new NasmMov(null,
+            inst.result.accept(this),
+            eax, ""));
 
         return null;
     }
@@ -235,7 +241,8 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
     public NasmOperand visit(C3aInstFEnd inst){
         NasmOperand label = (inst.label != null) ? inst.label.accept(this) : null;
 
-        nasm.ajouteInst(new NasmLeave(label, ""));
+        nasm.ajouteInst(new NasmMov(label, esp, ebp, ""));
+        nasm.ajouteInst(new NasmPop(null, ebp, ""));
         nasm.ajouteInst(new NasmRet(null, ""));
 
         return null;
@@ -263,7 +270,9 @@ public class C3a2nasm implements C3aVisitor <NasmOperand> {
     }
 
     public NasmOperand visit(C3aVar oper){
-        return new NasmAddress(oper.tsItem);
+        NasmExp base = new NasmLabel(oper.item.getIdentif());
+
+        return new NasmAddress(base, NasmSize.DWORD);
     }
 
     public NasmOperand visit(C3aFunction oper){
