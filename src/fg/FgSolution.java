@@ -1,20 +1,9 @@
 package fg;
-
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import nasm.Nasm;
-import nasm.NasmAddress;
-import nasm.NasmExp;
-import nasm.NasmInst;
-import nasm.NasmOperand;
-import nasm.NasmRegister;
-import util.graph.Node;
-import util.graph.NodeList;
-import util.intset.IntSet;
+import util.graph.*;
+import nasm.*;
+import util.intset.*;
+import java.io.*;
+import java.util.*;
 
 public class FgSolution {
     int iterNum = 0;
@@ -33,20 +22,19 @@ public class FgSolution {
         this.in = new HashMap<NasmInst, IntSet>();
         this.out = new HashMap<NasmInst, IntSet>();
 
-        // On initialise la taille des ensembles avec le nombre de registres temporaires
+        // On utilise le compteur de temporaires pour dimensionner les IntSet
         int maxSize = nasm.getTempCounter();
 
-        // 1. Initialisation des ensembles pour chaque instruction
+        // 1. Initialisation
         for (NasmInst inst : nasm.sectionText) {
             this.use.put(inst, new IntSet(maxSize));
             this.def.put(inst, new IntSet(maxSize));
             this.in.put(inst, new IntSet(maxSize));
             this.out.put(inst, new IntSet(maxSize));
-
             fillUseDef(inst);
         }
 
-        // 2. Calcul itératif de in et out
+        // 2. Résolution
         solve(maxSize);
     }
 
@@ -54,16 +42,15 @@ public class FgSolution {
         IntSet u = this.use.get(inst);
         IntSet d = this.def.get(inst);
 
-        // Gestion de la source
+        // Source
         if (inst.source != null) {
             if (inst.srcUse) collectRegisters(inst.source, u);
             if (inst.srcDef) collectRegisters(inst.source, d);
         }
 
-        // Gestion de la destination
+        // Destination
         if (inst.destination != null) {
-            // Cas particulier : si la destination est une adresse [exp]
-            // on l'UTILISE (pour calculer l'adresse) mais on ne définit pas les registres dedans
+            // Si c'est une adresse [exp], on l'utilise pour le calcul (USE)
             if (inst.destination instanceof NasmAddress) {
                 collectRegisters(inst.destination, u);
             } else {
@@ -72,42 +59,34 @@ public class FgSolution {
             }
         }
         
-        // Gestion du champ address (souvent utilisé pour les sauts ou appels)
+        // Adresse (appels/sauts)
         if (inst.address != null) {
             collectRegisters(inst.address, u);
         }
     }
 
-    // Méthode récursive pour fouiller dans les opérandes et les expressions (NasmExp)
     private void collectRegisters(NasmOperand op, IntSet set) {
         if (op == null) return;
 
+        // Si l'opérande est directement un registre
         if (op instanceof NasmRegister) {
             NasmRegister reg = (NasmRegister) op;
             if (reg.isGeneralRegister()) {
                 set.add(reg.val);
             }
-        } else if (op instanceof NasmAddress) {
-            // Dans une adresse [val], on cherche les registres dans l'expression 'val'
-            collectRegistersFromExp(((NasmAddress) op).val, set);
+        } 
+        // Si c'est une adresse [val], on regarde ce qu'il y a dans 'val'
+        else if (op instanceof NasmAddress) {
+            NasmAddress addr = (NasmAddress) op;
+            // 'val' est un NasmExp. On vérifie s'il contient un registre.
+            if (addr.val instanceof NasmRegister) {
+                NasmRegister reg = (NasmRegister) addr.val;
+                if (reg.isGeneralRegister()) set.add(reg.val);
+            } 
+            // Note : Si ton NasmExp peut être une addition (ex: r1 + r2), 
+            // il faudrait un visiteur d'expression. Mais avec les classes fournies,
+            // on se limite au cas où l'expression est un registre ou une constante.
         }
-    }
-
-    private void collectRegistersFromExp(NasmExp exp, IntSet set) {
-        if (exp == null) return;
-        
-        if (exp instanceof NasmRegister) {
-            NasmRegister reg = (NasmRegister) exp;
-            if (reg.isGeneralRegister()) {
-                set.add(reg.val);
-            }
-        } else if (exp instanceof NasmBinExp) {
-            // Si c'est une opération (ex: ebp + r1), on regarde à gauche et à droite
-            NasmBinExp bin = (NasmBinExp) exp;
-            collectRegistersFromExp(bin.left, set);
-            collectRegistersFromExp(bin.right, set);
-        }
-        // Les constantes (NasmConstant) ne contiennent pas de registres, on les ignore.
     }
 
     private void solve(int maxSize) {
@@ -118,19 +97,16 @@ public class FgSolution {
             stable = true;
             this.iterNum++;
 
-            // On parcourt les instructions en partant de la fin pour une convergence plus rapide
+            // Parcours inverse pour accélérer la propagation du "out" vers le "in"
             for (int i = nasm.sectionText.size() - 1; i >= 0; i--) {
                 NasmInst inst = nasm.sectionText.get(i);
                 
-                IntSet currentIn = this.in.get(inst);
-                IntSet currentOut = this.out.get(inst);
-                
-                IntSet oldIn = currentIn.copy();
-                IntSet oldOut = currentOut.copy();
+                IntSet oldIn = this.in.get(inst).copy();
+                IntSet oldOut = this.out.get(inst).copy();
 
-                // out[s] = Union des in[succ]
-                Node node = fg.inst2Node.get(inst);
+                // 1. OUT[s] = Union des IN[succ]
                 IntSet newOut = new IntSet(maxSize);
+                Node node = fg.inst2Node.get(inst);
                 if (node != null) {
                     NodeList succs = node.succ();
                     while (succs != null) {
@@ -143,13 +119,13 @@ public class FgSolution {
                 }
                 this.out.put(inst, newOut);
 
-                // in[s] = use[s] U (out[s] - def[s])
+                // 2. IN[s] = USE[s] U (OUT[s] - DEF[s])
                 IntSet newIn = newOut.copy();
                 newIn.minus(this.def.get(inst));
                 newIn.union(this.use.get(inst));
                 this.in.put(inst, newIn);
 
-                // Vérification du point fixe
+                // 3. Test de stabilité
                 if (!newIn.equal(oldIn) || !newOut.equal(oldOut)) {
                     stable = false;
                 }
@@ -159,7 +135,6 @@ public class FgSolution {
 
     public void affiche(String baseFileName) {
         PrintStream outStream = System.out;
-
         if (baseFileName != null) {
             try {
                 outStream = new PrintStream(new FileOutputStream(baseFileName + ".fgs"));
@@ -169,12 +144,12 @@ public class FgSolution {
         }
 
         outStream.println("iter num = " + iterNum);
-        for (NasmInst nasmInst : this.nasm.sectionText) {
-            outStream.println("use = " + this.use.get(nasmInst) + 
-                              " def = " + this.def.get(nasmInst) + 
-                              "\tin = " + this.in.get(nasmInst) + 
-                              "\tout = " + this.out.get(nasmInst) + 
-                              "\t\t" + nasmInst);
+        for (NasmInst inst : this.nasm.sectionText) {
+            outStream.println("use = " + this.use.get(inst) + 
+                              " def = " + this.def.get(inst) + 
+                              "\tin = " + this.in.get(inst) + 
+                              "\tout = " + this.out.get(inst) + 
+                              "\t\t" + inst);
         }
     }
 }
