@@ -37,26 +37,20 @@ public class Ig {
         for (int i = 0; i < regNb; i++) {
             int2Node[i] = graph.newNode();
         }
-
-        for (NasmInst inst : nasm.sectionText) {
-            IntSet outSet = fgs.out.get(inst);
-            IntSet defSet = fgs.def.get(inst);
-
-            // Les variables vivantes ensemble en OUT interfèrent entre elles
-            addInterferenceEdges(outSet);
-
-            // Chaque variable définie interfère avec tout ce qui est vivant en OUT
-            if (defSet != null && outSet != null) {
-                for (int d = 0; d < regNb; d++) {
-                    if (!defSet.isMember(d)) continue;
-                    for (int o = 0; o < regNb; o++) {
-                        if (!outSet.isMember(o)) continue;
-                        if (d != o) {
-                            graph.addNOEdge(int2Node[d], int2Node[o]);
-                        }
-                    }
+        
+        // Interférences entre tous les registres pré-colorés différents
+        int[] precolored = getPrecoloredTemporaries();
+        for (int i = 0; i < regNb; i++) {
+            for (int j = i + 1; j < regNb; j++) {
+                if (precolored[i] != -1 && precolored[j] != -1 && precolored[i] != precolored[j]) {
+                    graph.addNOEdge(int2Node[i], int2Node[j]);
                 }
             }
+        }
+
+        // Interférences classiques sur out
+        for (NasmInst inst : nasm.sectionText) {
+            addInterferenceEdges(fgs.out.get(inst));
         }
     }
 
