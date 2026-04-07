@@ -158,7 +158,12 @@ public class Fg implements NasmVisitor<Void> {
     public Void visit(NasmInst inst) { addSequentialEdge(inst); return null; }
     public Void visit(NasmInt inst) { addSequentialEdge(inst); return null; }
     public Void visit(NasmEmpty inst) { addSequentialEdge(inst); return null; }
-    public Void visit(NasmCall inst) { addSequentialEdge(inst); return null; }
+
+    public Void visit(NasmCall inst) {
+        addSequentialEdge(inst);
+        addJumpEdge(inst, inst.address); // ← ajout de l'arc vers la fonction appelée
+        return null;
+    }
 
     // --- Sauts conditionnels ---
     public Void visit(NasmJe inst) {

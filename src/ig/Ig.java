@@ -10,7 +10,6 @@ import nasm.NasmExp;
 import nasm.NasmExpMinus;
 import nasm.NasmExpPlus;
 import nasm.NasmInst;
-import nasm.NasmOperand;
 import nasm.NasmRegister;
 import util.graph.ColorGraph;
 import util.graph.Graph;
@@ -35,13 +34,29 @@ public class Ig {
     }
     
     public void build() {
-        // Étape 1 : un nœud par registre virtuel
         for (int i = 0; i < regNb; i++) {
             int2Node[i] = graph.newNode();
         }
+
         for (NasmInst inst : nasm.sectionText) {
-            addInterferenceEdges(fgs.in.get(inst));
-            addInterferenceEdges(fgs.out.get(inst));
+            IntSet outSet = fgs.out.get(inst);
+            IntSet defSet = fgs.def.get(inst);
+
+            // Les variables vivantes ensemble en OUT interfèrent entre elles
+            addInterferenceEdges(outSet);
+
+            // Chaque variable définie interfère avec tout ce qui est vivant en OUT
+            if (defSet != null && outSet != null) {
+                for (int d = 0; d < regNb; d++) {
+                    if (!defSet.isMember(d)) continue;
+                    for (int o = 0; o < regNb; o++) {
+                        if (!outSet.isMember(o)) continue;
+                        if (d != o) {
+                            graph.addNOEdge(int2Node[d], int2Node[o]);
+                        }
+                    }
+                }
+            }
         }
     }
 
